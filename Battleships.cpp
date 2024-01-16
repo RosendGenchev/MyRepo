@@ -1,32 +1,46 @@
 #include <iostream>
 using namespace std;
 
-void placeShipValidation(int firstCellX, int firstCellY, char orientation, int sizeOfShip, int rows, int cols) {
+int placeShipValidation(char** field, int firstCellX, int firstCellY, char orientation, int sizeOfShip, int rows, int cols) {
 
     if (firstCellX < 0 || firstCellX >= rows) {
-        cout << "Can't place a ship there";
-        return;
+        return 1;
     }
 
     if (firstCellY < 0 || firstCellX >= cols) {
-        cout << "Can't place a ship there";
-        return;
+        return 1;
     }
 
     if (orientation == 'V') {
+
+        int j = firstCellY;
+        for (int i = firstCellX; i < firstCellX + sizeOfShip;i++) {
+            if (field[i][j] == '1') {
+                return 1;
+            }
+        }
+
         if (firstCellX + sizeOfShip - 1 > rows) {
-            cout << "Can't place a ship there";
-            return;
+            return 1;
         }
     }
 
     if (orientation == 'H') {
+
+
+        int k = firstCellX;
+        for (int l = firstCellY; l < firstCellY + sizeOfShip;l++) {
+            cout << l;
+            if (field[k][l] == '1') {
+                return 1;
+            }
+        }
+        cout << "cringe" << endl;
         if (firstCellY + sizeOfShip - 1 > cols) {
-            cout << "Can't place a ship there";
-            return;
+            return 1;
         }
     }
-
+    return 0;
     //Can't place 2 ships on one cell
 
 }
@@ -55,9 +69,12 @@ void printField(char** field, int rows, int cols) {
     }
 }
 
-void placeShip(char** field, int firstCellX, int firstCellY, int orientation, int sizeOfShip, int rows, int cols) {
-    placeShipValidation(firstCellX, firstCellY, orientation, sizeOfShip, rows, cols);
+int placeShip(char** field, int firstCellX, int firstCellY, int orientation, int sizeOfShip, int rows, int cols, int shipsCount) {
+    if (placeShipValidation(field, firstCellX, firstCellY, orientation, sizeOfShip, rows, cols) == 1) {
 
+        return 1;
+    }
+    
     if (orientation == 'H') {
         int i = firstCellX;
         for (int j = firstCellY; j < firstCellY + sizeOfShip;j++) {
@@ -72,6 +89,29 @@ void placeShip(char** field, int firstCellX, int firstCellY, int orientation, in
         }
     }
 
+    return 0;
+}
+
+int getSizeOfShip(char boatType) {
+    int sizeOfShip = 0;
+    if (boatType == 'B') {
+        sizeOfShip = 2;
+        
+    }
+
+    if (boatType == 'S') {
+        sizeOfShip = 3;
+    }
+
+    if (boatType == 'D') {
+        sizeOfShip = 4;
+    }
+
+    if (boatType == 'A') {
+        sizeOfShip = 5;
+    }
+
+    return sizeOfShip;
 }
 
 void placeShipsInField(char** field, int rows, int cols, int shipsCount) {
@@ -82,10 +122,8 @@ void placeShipsInField(char** field, int rows, int cols, int shipsCount) {
     char boatType;
     int firstCellX, firstCellY;
     char orientation;
-    int sizeOfShip;
-
+    int sizeOfShip = 0;
     for (int i = 0;i < shipsCount;i++) {
-
         cout << "What ship do you want to place? ('B'/'S'/'D'/'A'): ";
         cin >> boatType;
 
@@ -95,26 +133,31 @@ void placeShipsInField(char** field, int rows, int cols, int shipsCount) {
         cout << "What orientation do you want it to be? ('H'/'V'): ";
         cin >> orientation;
 
+        sizeOfShip = getSizeOfShip(boatType);
+
+        if (placeShip(field, firstCellX, firstCellY, orientation, sizeOfShip, rows, cols, shipsCount) == 1) {
+            cout << "Can't place a ship there, try again" << endl;
+            placeShipsInField(field, rows, cols, shipsCount-i);
+        }
+
+
         if (boatType == 'B') {
-            sizeOfShip = 2;
-            placeShip(field, firstCellX, firstCellY, orientation, sizeOfShip, rows, cols);
+            placeShip(field, firstCellX, firstCellY, orientation, sizeOfShip, rows, cols, shipsCount);
         }
 
         if (boatType == 'S') {
-            sizeOfShip = 3;
-            placeShip(field, firstCellX, firstCellY, orientation, sizeOfShip, rows, cols);
+            placeShip(field, firstCellX, firstCellY, orientation, sizeOfShip, rows, cols, shipsCount);
 
         }
 
         if (boatType == 'D') {
-            sizeOfShip = 4;
-            placeShip(field, firstCellX, firstCellY, orientation, sizeOfShip, rows, cols);
+            placeShip(field, firstCellX, firstCellY, orientation, sizeOfShip, rows, cols, shipsCount);
         }
 
         if (boatType == 'A') {
-            sizeOfShip = 5;
-            placeShip(field, firstCellX, firstCellY, orientation, sizeOfShip, rows, cols);
+            placeShip(field, firstCellX, firstCellY, orientation, sizeOfShip, rows, cols, shipsCount);
         }
+
     }
 
 }
