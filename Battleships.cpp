@@ -1,5 +1,6 @@
 #include <iostream>
 using namespace std;
+constexpr int MAX = 128;
 
 int placeShipValidation(char** field, int firstCellX, int firstCellY, char orientation, int sizeOfShip, int rows, int cols) {
 
@@ -14,15 +15,16 @@ int placeShipValidation(char** field, int firstCellX, int firstCellY, char orien
     if (orientation == 'V') {
 
         int j = firstCellY;
+        if (firstCellX + sizeOfShip - 1 >= rows) {
+            return 1;
+        }
         for (int i = firstCellX; i < firstCellX + sizeOfShip;i++) {
-            if (field[i][j] == '1') {
+            if (field[i][j] >= 'A' && field[i][j] <= 'Z') {
                 return 1;
             }
         }
 
-        if (firstCellX + sizeOfShip - 1 > rows) {
-            return 1;
-        }
+        
     }
 
     if (orientation == 'H') {
@@ -30,18 +32,16 @@ int placeShipValidation(char** field, int firstCellX, int firstCellY, char orien
 
         int k = firstCellX;
         for (int l = firstCellY; l < firstCellY + sizeOfShip;l++) {
-            cout << l;
-            if (field[k][l] == '1') {
+            if (field[k][l] >= 'A' && field[k][l] <= 'Z') {
                 return 1;
             }
         }
-        cout << "cringe" << endl;
+
         if (firstCellY + sizeOfShip - 1 > cols) {
             return 1;
         }
     }
     return 0;
-    //Can't place 2 ships on one cell
 
 }
 
@@ -69,23 +69,24 @@ void printField(char** field, int rows, int cols) {
     }
 }
 
-int placeShip(char** field, int firstCellX, int firstCellY, int orientation, int sizeOfShip, int rows, int cols, int shipsCount) {
+int placeShip(char** field, int firstCellX, int firstCellY, int orientation, int sizeOfShip, int rows, int cols, int shipsCount, char differentShipsNumbers) {
     if (placeShipValidation(field, firstCellX, firstCellY, orientation, sizeOfShip, rows, cols) == 1) {
-
         return 1;
     }
-    
+
+
+
     if (orientation == 'H') {
         int i = firstCellX;
         for (int j = firstCellY; j < firstCellY + sizeOfShip;j++) {
-            field[i][j] = '1';
+            field[i][j] = differentShipsNumbers;
         }
     }
 
     if (orientation == 'V') {
         int j = firstCellY;
         for (int i = firstCellX; i < firstCellX + sizeOfShip;i++) {
-            field[i][j] = '1';
+            field[i][j] = differentShipsNumbers;
         }
     }
 
@@ -123,6 +124,8 @@ void placeShipsInField(char** field, int rows, int cols, int shipsCount) {
     int firstCellX, firstCellY;
     char orientation;
     int sizeOfShip = 0;
+    char differentShipsSymbol = 'A';
+
     for (int i = 0;i < shipsCount;i++) {
         cout << "What ship do you want to place? ('B'/'S'/'D'/'A'): ";
         cin >> boatType;
@@ -135,38 +138,80 @@ void placeShipsInField(char** field, int rows, int cols, int shipsCount) {
 
         sizeOfShip = getSizeOfShip(boatType);
 
-        if (placeShip(field, firstCellX, firstCellY, orientation, sizeOfShip, rows, cols, shipsCount) == 1) {
+        differentShipsSymbol += i;
+
+        if (placeShip(field, firstCellX, firstCellY, orientation, sizeOfShip, rows, cols, shipsCount, differentShipsSymbol) == 1) {
             cout << "Can't place a ship there, try again" << endl;
-            placeShipsInField(field, rows, cols, shipsCount-i);
+            placeShipsInField(field, rows, cols, shipsCount - i);
         }
 
 
         if (boatType == 'B') {
-            placeShip(field, firstCellX, firstCellY, orientation, sizeOfShip, rows, cols, shipsCount);
+            placeShip(field, firstCellX, firstCellY, orientation, sizeOfShip, rows, cols, shipsCount, differentShipsSymbol);
         }
 
         if (boatType == 'S') {
-            placeShip(field, firstCellX, firstCellY, orientation, sizeOfShip, rows, cols, shipsCount);
+            placeShip(field, firstCellX, firstCellY, orientation, sizeOfShip, rows, cols, shipsCount, differentShipsSymbol);
 
         }
 
         if (boatType == 'D') {
-            placeShip(field, firstCellX, firstCellY, orientation, sizeOfShip, rows, cols, shipsCount);
+            placeShip(field, firstCellX, firstCellY, orientation, sizeOfShip, rows, cols, shipsCount, differentShipsSymbol);
         }
 
         if (boatType == 'A') {
-            placeShip(field, firstCellX, firstCellY, orientation, sizeOfShip, rows, cols, shipsCount);
+            placeShip(field, firstCellX, firstCellY, orientation, sizeOfShip, rows, cols, shipsCount, differentShipsSymbol);
         }
 
     }
 
 }
 
-int main()
-{
-    //Стреляне
-    //Оповестяване на победителя
+void shoot(int shootCoordinateX, int shootCoordinateY,char** fieldPlayerOne, char** fieldPlayerTwo, int rows, int cols) {
+    
+        cout << "Player(1) shoots at (X/Y): ";
+        cin >> shootCoordinateX >> shootCoordinateY;
+        if (fieldPlayerTwo[shootCoordinateX][shootCoordinateY] >= 'A' && fieldPlayerTwo[shootCoordinateX][shootCoordinateY] <= 'Z') {
+            fieldPlayerTwo[shootCoordinateX][shootCoordinateY] = '!';
+            cout << "Hit!" << endl;
+        }
 
+        printField(fieldPlayerTwo, rows, cols);
+
+        cout << "Player(2) shoots at (X/Y): ";
+        cin >> shootCoordinateX >> shootCoordinateY;
+        if (fieldPlayerOne[shootCoordinateX][shootCoordinateY] >= 'A' && fieldPlayerOne[shootCoordinateX][shootCoordinateY] <= 'Z') {
+            fieldPlayerOne[shootCoordinateX][shootCoordinateY] = '!';
+            cout << "Hit!" << endl;
+        }
+
+        printField(fieldPlayerOne, rows, cols);
+
+        for (int i = 0;i < rows; i++) {
+            for (int j = 0;j < cols; j++) {
+                if (fieldPlayerTwo[i][j] >= 'A' && fieldPlayerTwo[i][j] <= 'Z') {
+                    shoot(shootCoordinateX, shootCoordinateY, fieldPlayerOne, fieldPlayerTwo, rows, cols);
+                }
+            }
+        }
+
+        cout << "Player(1) wins!!!" << endl;
+        return;
+        
+        for (int i = 0;i < rows; i++) {
+            for (int j = 0;j < cols; j++) {
+                if (fieldPlayerOne[i][j] >= 'A' && fieldPlayerOne[i][j] <= 'Z') {
+                    shoot(shootCoordinateX, shootCoordinateY, fieldPlayerOne, fieldPlayerTwo, rows, cols);
+                }
+            }
+        }
+
+        cout << "Player(2) wins!!!" << endl;
+        return;
+
+}
+
+void read() {
     int rows, cols;
     cout << "Board size (rows / columns): ";
     cin >> rows;
@@ -185,13 +230,24 @@ int main()
     cout << "Ships count: ";
     cin >> shipsCount;
 
-    cout << "Player 1 places ships: " << endl;
+    cout << "Player(1) places ships: " << endl;
     placeShipsInField(fieldPlayerOne, rows, cols, shipsCount);
     printField(fieldPlayerOne, rows, cols);
 
-    cout << "Player 2 places ships: " << endl;
+    cout << "Player(2) places ships: " << endl;
     placeShipsInField(fieldPlayerTwo, rows, cols, shipsCount);
     printField(fieldPlayerTwo, rows, cols);
 
+    int shootCoordinateX = 0, shootCoordinateY = 0;
+
+    shoot(shootCoordinateX,shootCoordinateY, fieldPlayerOne,fieldPlayerTwo, rows, cols);
+}
+
+int main()
+{
+    //Стреляне
+    //Оповестяване на победителя
+    read();
+  
     return 0;
 }
