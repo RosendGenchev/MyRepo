@@ -2,21 +2,35 @@
 using namespace std;
 constexpr int MAX = 128;
 
-int boardSizeValidation(int rows, int cols) {
+bool boatTypeIsValid(char a) {
+    if (a != 'B' || a != 'S' || a != 'D' || a != 'A') {
+        return 1;
+    }
+    return 0;
+}
+
+bool oriåntationIsValid(char a) {
+    if (a != 'H' || a != 'V') {
+        return 1;
+    }
+    return 0;
+}
+
+bool boardSizeIsValid(int rows, int cols) {
     if (rows < 0 || cols < 0) {
         return 1;
     }
     return 0;
 }
 
-int shipsCountValidation(int shipsCount) {
+bool shipsCountIsValid(int shipsCount) {
     if (shipsCount < 0) {
         return 1;
     }
     return 0;
 }
 
-int placeShipValidation(char** field, int firstCellX, int firstCellY, char orientation, int sizeOfShip, int rows, int cols) {
+bool placeShipIsValid(char** field, int firstCellX, int firstCellY, char orientation, int sizeOfShip, int rows, int cols) {
 
     if (firstCellX < 0 || firstCellX >= rows) {
         return 1;
@@ -37,8 +51,6 @@ int placeShipValidation(char** field, int firstCellX, int firstCellY, char orien
                 return 1;
             }
         }
-
-        
     }
 
     if (orientation == 'H') {
@@ -139,18 +151,26 @@ void placeShipsInField(char** field, int rows, int cols, int shipsCount) {
     for (int i = 0;i < shipsCount;i++) {
         cout << "What ship do you want to place? ('B'/'S'/'D'/'A'): ";
         cin >> boatType;
+        if (boatTypeIsValid(boatType)) {
+            cout << "Invalid input" << endl;
+                return;
+        }
 
         cout << "Enter coordinates of the first cell (X/Y): ";
         cin >> firstCellX >> firstCellY;
 
         cout << "What orientation do you want it to be? ('H'/'V'): ";
         cin >> orientation;
+        if (oriåntationIsValid(orientation)) {
+            cout << "Invalid Input" << endl;
+                return;
+        }
 
         sizeOfShip = getSizeOfShip(boatType);
 
         differentShipsSymbol += i;
 
-        while (placeShipValidation(field, firstCellX, firstCellY, orientation, sizeOfShip, rows, cols) == 1) {
+        while (placeShipIsValid(field, firstCellX, firstCellY, orientation, sizeOfShip, rows, cols) == 1) {
             cout << endl << "Can't place a ship there" << endl;
             cout << "Enter coordinates again (X/Y): ";
             cin >> firstCellX >> firstCellY;
@@ -311,7 +331,7 @@ void playGame() {
     cout << "Board size (rows / columns): ";
     cin >> rows;
     cin >> cols;
-    if (boardSizeValidation(rows, cols)) {
+    if (boardSizeIsValid(rows, cols)) {
         cout << "Invalid board size" << endl;
         return;
     }
@@ -319,7 +339,7 @@ void playGame() {
     int shipsCount;
     cout << "Ships count: ";
     cin >> shipsCount;
-    if (shipsCountValidation(shipsCount)) {
+    if (shipsCountIsValid(shipsCount)) {
         cout << "Invalid ships count" << endl;
         return;
     }
