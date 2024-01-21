@@ -1,5 +1,5 @@
 /**
-*  
+*
 * Solution to course project 1
 * Introduction to programming course
 * Faculty of Mathematics and Informatics of Sofia University
@@ -159,21 +159,21 @@ void placeShip(char** field, int firstCellX, int firstCellY, int orientation, in
 int getSizeOfShip(char shipType) {
 
     switch (shipType) {
-        case (SHIP_TYPE_BOAT):
-            return SHIP_SIZE_BOAT;
-            break;
+    case (SHIP_TYPE_BOAT):
+        return SHIP_SIZE_BOAT;
+        break;
 
-        case(SHIP_TYPE_SUBMARINE):
-            return SHIP_SIZE_SUBMARINE;
-            break;
+    case(SHIP_TYPE_SUBMARINE):
+        return SHIP_SIZE_SUBMARINE;
+        break;
 
-        case(SHIP_TYPE_DESTROYER):
-            return SHIP_SIZE_DESTROYER;
-            break;
+    case(SHIP_TYPE_DESTROYER):
+        return SHIP_SIZE_DESTROYER;
+        break;
 
-        case(SHIP_TYPE_AIRCRAFT):
-            return SHIP_SIZE_AIRCRAFT;
-            break;
+    case(SHIP_TYPE_AIRCRAFT):
+        return SHIP_SIZE_AIRCRAFT;
+        break;
     }
 }
 
@@ -197,7 +197,7 @@ void placeShipsInField(char** field, int rows, int cols, int shipsCount) {
         cout << "Enter ship orientation ('H'/'V'): ";
         cin >> orientation;
 
-        if (isOriåntationValid(orientation)) {
+        if (isOrientationValid(orientation)) {
             cout << "Invalid ship orientation" << endl;
             return;
         }
@@ -220,7 +220,7 @@ void placeShipsInField(char** field, int rows, int cols, int shipsCount) {
     }
 }
 
-void shoot(char**field, int shootCellX, int shootCellY, int& sunkShipsCount, int fieldRows, int fieldCols, bool& hitResult) {
+void shoot(char** field, int shootCellX, int shootCellY, int& sunkShipsCount, int fieldRows, int fieldCols, bool& hitResult) {
     if (shootCellX < 0 || shootCellY < 0 || shootCellX > fieldRows - 1 || shootCellY > fieldCols - 1) {
         cout << "Invalid shooting coordinates! You lost your turn." << endl;
         return;
@@ -242,7 +242,6 @@ void shoot(char**field, int shootCellX, int shootCellY, int& sunkShipsCount, int
                     sunkShipsCount++;
                 }
             }
-
             else if (shootCellX == 0) {
                 if ((field[shootCellX][shootCellY] != field[shootCellX][shootCellY - 1]) && (field[shootCellX][shootCellY] != field[shootCellX + 1][shootCellY]) && (field[shootCellX][shootCellY] != field[shootCellX][shootCellY + 1])) {
                     cout << "You sunk a ship!" << endl;
@@ -250,7 +249,7 @@ void shoot(char**field, int shootCellX, int shootCellY, int& sunkShipsCount, int
                 }
             }
 
-            if (shootCellX == fieldRows - 1 && shootCellY == 0) {
+            else if (shootCellX == fieldRows - 1 && shootCellY == 0) {
                 if ((field[shootCellX][shootCellY] != field[shootCellX - 1][shootCellY]) && (field[shootCellX][shootCellY] != field[shootCellX][shootCellY + 1])) {
                     cout << "You sunk a shipppp!" << endl;
                     sunkShipsCount++;
@@ -307,7 +306,7 @@ void changeFieldCellMiss(char** field, int x, int y, int rows, int cols) {
     field[x][y] = SYMBOL_MISS;
 }
 
-void startShootingPhase(int shootCoordinateX, int shootCoordinateY,char** fieldPlayerOne, char** fieldPlayerTwo, int rows, int cols, int shipsCount) {
+void startShootingPhase(int shootCoordinateX, int shootCoordinateY, char** fieldPlayerOne, char** fieldPlayerTwo, int rows, int cols, int shipsCount) {
     int sunkShipsCountPlayerOne = 0;
     int sunkShipsCountPlayerTwo = 0;
 
@@ -333,14 +332,14 @@ void startShootingPhase(int shootCoordinateX, int shootCoordinateY,char** fieldP
             changeFieldCellHit(playerOneUIField, shootCoordinateX, shootCoordinateY);
         }
         else {
-            changeFieldCellMiss(playerOneUIField, shootCoordinateX, shootCoordinateY, rows ,cols);
+            changeFieldCellMiss(playerOneUIField, shootCoordinateX, shootCoordinateY, rows, cols);
         }
 
         cout << endl;
         printField(playerOneUIField, rows, cols);
 
         if (sunkShipsCountPlayerTwo == shipsCount) {
-            cout <<" - Player(1) wins!!! - "<< endl;
+            cout << " - Player(1) wins!!! - " << endl;
             break;
         }
 
@@ -395,7 +394,7 @@ void playGame() {
 
     cout << "Player(1) turn to place ships: " << endl;
     placeShipsInField(fieldPlayerOne, rows, cols, shipsCount);
-   
+
     cout << "Player(2) turn to place ships: " << endl;
     placeShipsInField(fieldPlayerTwo, rows, cols, shipsCount);
 
@@ -406,7 +405,7 @@ void playGame() {
     printField(fieldPlayerTwo, rows, cols);
 
     int shootCoordinateX = 0, shootCoordinateY = 0;
-    startShootingPhase(shootCoordinateX,shootCoordinateY, fieldPlayerOne,fieldPlayerTwo, rows, cols, shipsCount);
+    startShootingPhase(shootCoordinateX, shootCoordinateY, fieldPlayerOne, fieldPlayerTwo, rows, cols, shipsCount);
 }
 
 int main() {
