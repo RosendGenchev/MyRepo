@@ -1,3 +1,18 @@
+/**
+*  
+* Solution to course project 1
+* Introduction to programming course
+* Faculty of Mathematics and Informatics of Sofia University
+* Winter semester 2023/2024
+*
+* @author Rosen Genchev
+* @idnumber 8MI0600372
+* @compiler VC
+*
+* <main file>
+*
+*/
+
 #include <iostream>
 using namespace std;
 
@@ -34,7 +49,7 @@ bool isShipTypeValid(char type) {
     return false;
 }
 
-bool isOriåntationValid(char orientation) {
+bool isOrientationValid(char orientation) {
     if (orientation != ORIENTATION_HORIZONTAL && orientation != ORIENTATION_VERTICAL) {
         return true;
     }
@@ -182,7 +197,7 @@ void placeShipsInField(char** field, int rows, int cols, int shipsCount) {
         cout << "Enter ship orientation ('H'/'V'): ";
         cin >> orientation;
 
-        if (isOriåntationValid(orientation)) {
+        if (isOriÃ¥ntationValid(orientation)) {
             cout << "Invalid ship orientation" << endl;
             return;
         }
