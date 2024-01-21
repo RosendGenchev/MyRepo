@@ -1,329 +1,338 @@
 #include <iostream>
 using namespace std;
+
 constexpr int MAX = 128;
 
-bool boatTypeIsValid(char a) {
-    if (a != 'B' || a != 'S' || a != 'D' || a != 'A') {
-        return 1;
+const char SHIP_TYPE_BOAT = 'B';
+const char SHIP_TYPE_SUBMARINE = 'S';
+const char SHIP_TYPE_DESTROYER = 'D';
+const char SHIP_TYPE_AIRCRAFT = 'A';
+
+const int SHIP_SIZE_BOAT = 2;
+const int SHIP_SIZE_SUBMARINE = 3;
+const int SHIP_SIZE_DESTROYER = 4;
+const int SHIP_SIZE_AIRCRAFT = 5;
+
+const char ORIENTATION_HORIZONTAL = 'H';
+const char ORIENTATION_VERTICAL = 'V';
+
+const int MIN_ROWS = 2;
+const int MIN_COLS = 2;
+const int MAX_ROWS = 128;
+const int MAX_COLS = 128;
+
+const char SYMBOL_SEA = '.';
+
+const char SYMBOL_HIT = '#';
+const char SYMBOL_MISS = '0';
+
+bool isShipTypeValid(char type) {
+    if (type != SHIP_TYPE_BOAT && type != SHIP_TYPE_SUBMARINE && type != SHIP_TYPE_DESTROYER && type != SHIP_TYPE_AIRCRAFT) {
+        return true;
     }
-    return 0;
+
+    return false;
 }
 
-bool oriåntationIsValid(char a) {
-    if (a != 'H' || a != 'V') {
-        return 1;
+bool isOriåntationValid(char orientation) {
+    if (orientation != ORIENTATION_HORIZONTAL && orientation != ORIENTATION_VERTICAL) {
+        return true;
     }
-    return 0;
+
+    return false;
 }
 
-bool boardSizeIsValid(int rows, int cols) {
-    if (rows < 0 || cols < 0) {
-        return 1;
+bool isBoardSizeValid(int rows, int cols) {
+    if (rows < MIN_ROWS || cols < MIN_COLS || rows > MAX_ROWS || cols > MAX_COLS) {
+        return true;
     }
-    return 0;
+
+    return false;
 }
 
-bool shipsCountIsValid(int shipsCount) {
+bool isShipsCountValid(int shipsCount) {
     if (shipsCount < 0) {
-        return 1;
+        return true;
     }
-    return 0;
+
+    return false;
 }
 
-bool placeShipIsValid(char** field, int firstCellX, int firstCellY, char orientation, int sizeOfShip, int rows, int cols) {
-
-    if (firstCellX < 0 || firstCellX >= rows) {
-        return 1;
-    }
-
-    if (firstCellY < 0 || firstCellX >= cols) {
-        return 1;
-    }
-
-    if (orientation == 'V') {
-
-        int j = firstCellY;
-        if (firstCellX + sizeOfShip - 1 >= rows) {
-            return 1;
-        }
-        for (int i = firstCellX; i < firstCellX + sizeOfShip;i++) {
-            if (field[i][j] >= 'A' && field[i][j] <= 'Z') {
-                return 1;
-            }
-        }
-    }
-
-    if (orientation == 'H') {
-
-
-        int k = firstCellX;
-        for (int l = firstCellY; l < firstCellY + sizeOfShip;l++) {
-            if (field[k][l] >= 'A' && field[k][l] <= 'Z') {
-                return 1;
-            }
-        }
-
-        if (firstCellY + sizeOfShip - 1 > cols) {
-            return 1;
-        }
-    }
-    return 0;
-
+bool isCapitalLetter(char letter) {
+    return letter >= 'A' && letter <= 'Z';
 }
 
-void makeDynamicField(char** field, int rows, int cols) {
-    for (int i = 0;i < rows;i++) {
+void initDynamicField(char** field, int rows, int cols) {
+    for (int i = 0; i < rows; i++) {
         field[i] = new char[cols];
     }
 }
 
-void fillDynamicFieldWithDots(char** field, int rows, int cols) {
+void fillDefaultField(char** field, int rows, int cols) {
     for (int i = 0;i < rows;i++) {
         for (int j = 0;j < cols;j++) {
-            field[i][j] = '.';
+            field[i][j] = SYMBOL_SEA;
         }
     }
 }
 
 void printField(char** field, int rows, int cols) {
-    cout << endl;
-    for (int i = 0;i < rows;i++) {
-        for (int j = 0;j < cols;j++) {
-            cout << field[i][j] << " ";
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            cout << field[i][j] << ' ';
         }
+
         cout << endl;
     }
 }
 
-void placeShip(char** field, int firstCellX, int firstCellY, int orientation, int sizeOfShip, int rows, int cols, int shipsCount, char differentShipsNumbers) {
+bool canShipBePlaced(char** field, int firstCellX, int firstCellY, char orientation, int sizeOfShip, int fieldRows, int fieldCols) {
 
-    if (orientation == 'H') {
-        int i = firstCellX;
-        for (int j = firstCellY; j < firstCellY + sizeOfShip;j++) {
-            field[i][j] = differentShipsNumbers;
-        }
+    if (firstCellX < 0 || firstCellX >= fieldRows) {
+        return false;
     }
 
-    if (orientation == 'V') {
+    if (firstCellY < 0 || firstCellX >= fieldCols) {
+        return false;
+    }
+
+    if (orientation == ORIENTATION_VERTICAL) {
         int j = firstCellY;
+        if (firstCellX + sizeOfShip - 1 >= fieldRows) {
+            return false;
+        }
+
         for (int i = firstCellX; i < firstCellX + sizeOfShip;i++) {
-            field[i][j] = differentShipsNumbers;
+            if (isCapitalLetter(field[i][j])) {
+                return false;
+            }
         }
     }
 
-    printField(field, rows, cols);
-    return;
+    if (orientation == ORIENTATION_HORIZONTAL) {
+        int k = firstCellX;
+        if (firstCellY + sizeOfShip - 1 >= fieldCols) {
+            return false;
+        }
+
+        for (int l = firstCellY; l < firstCellY + sizeOfShip;l++) {
+            if (isCapitalLetter(field[k][l])) {
+                return false;
+            }
+        }
+    }
+
+    return true;
 }
 
-int getSizeOfShip(char boatType) {
-    int sizeOfShip = 0;
-    if (boatType == 'B') {
-        sizeOfShip = 2;
-        
+void placeShip(char** field, int firstCellX, int firstCellY, int orientation, int sizeOfShip, int rows, int cols, int shipsCount, char currentShipSymbol) {
+    if (orientation == ORIENTATION_HORIZONTAL) {
+        int i = firstCellX;
+        for (int j = firstCellY; j < firstCellY + sizeOfShip;j++) {
+            field[i][j] = currentShipSymbol;
+        }
     }
 
-    if (boatType == 'S') {
-        sizeOfShip = 3;
+    if (orientation == ORIENTATION_VERTICAL) {
+        int j = firstCellY;
+        for (int i = firstCellX; i < firstCellX + sizeOfShip;i++) {
+            field[i][j] = currentShipSymbol;
+        }
     }
+    // TODO: Print field after calling this function
+}
 
-    if (boatType == 'D') {
-        sizeOfShip = 4;
+int getSizeOfShip(char shipType) {
+
+    switch (shipType) {
+        case (SHIP_TYPE_BOAT):
+            return SHIP_SIZE_BOAT;
+            break;
+
+        case(SHIP_TYPE_SUBMARINE):
+            return SHIP_SIZE_SUBMARINE;
+            break;
+
+        case(SHIP_TYPE_DESTROYER):
+            return SHIP_SIZE_DESTROYER;
+            break;
+
+        case(SHIP_TYPE_AIRCRAFT):
+            return SHIP_SIZE_AIRCRAFT;
+            break;
     }
-
-    if (boatType == 'A') {
-        sizeOfShip = 5;
-    }
-
-    return sizeOfShip;
 }
 
 void placeShipsInField(char** field, int rows, int cols, int shipsCount) {
-    /* - Ëîäêè.Ñ ðàçìåð 2 êëåòêè.
-       - Ïîäâîäíèöè.Ñ ðàçìåð 3 êëåòêè.
-       - Ðàçðóøèòå.Ñ ðàçìåð 4 êëåòêè.
-       - Ñàìîëåòîíîñà÷.Ñ ðàçìåð 5 êëåòêè */
-    char boatType;
-    int firstCellX, firstCellY;
-    char orientation;
-    int sizeOfShip = 0;
-    char differentShipsSymbol = 'A';
+    char currentShipSymbol = 'A';
 
-    for (int i = 0;i < shipsCount;i++) {
-        cout << "What ship do you want to place? ('B'/'S'/'D'/'A'): ";
-        cin >> boatType;
-        if (boatTypeIsValid(boatType)) {
-            cout << "Invalid input" << endl;
-                return;
+    for (int i = 0; i < shipsCount; i++) {
+        char shipType;
+        cout << "Enter ship type ('B'/'S'/'D'/'A'): ";
+        cin >> shipType;
+
+        if (isShipTypeValid(shipType)) {
+            cout << "Invalid ship type" << endl;
+            return;
         }
-
-        cout << "Enter coordinates of the first cell (X/Y): ";
+        int firstCellX, firstCellY;
+        cout << "Enter ship coordinates for the first cell (X/Y): ";
         cin >> firstCellX >> firstCellY;
 
-        cout << "What orientation do you want it to be? ('H'/'V'): ";
+        char orientation;
+        cout << "Enter ship orientation ('H'/'V'): ";
         cin >> orientation;
-        if (oriåntationIsValid(orientation)) {
-            cout << "Invalid Input" << endl;
-                return;
+
+        if (isOriåntationValid(orientation)) {
+            cout << "Invalid ship orientation" << endl;
+            return;
         }
 
-        sizeOfShip = getSizeOfShip(boatType);
+        int sizeOfShip = getSizeOfShip(shipType);
 
-        differentShipsSymbol += i;
+        currentShipSymbol += i;
 
-        while (placeShipIsValid(field, firstCellX, firstCellY, orientation, sizeOfShip, rows, cols) == 1) {
+        while (!canShipBePlaced(field, firstCellX, firstCellY, orientation, sizeOfShip, rows, cols)) {
             cout << endl << "Can't place a ship there" << endl;
-            cout << "Enter coordinates again (X/Y): ";
+            cout << "Enter ship coordinates again (X/Y): ";
             cin >> firstCellX >> firstCellY;
         }
 
-        if (boatType == 'B') {
-            placeShip(field, firstCellX, firstCellY, orientation, sizeOfShip, rows, cols, shipsCount, differentShipsSymbol);
-        }
-
-        if (boatType == 'S') {
-            placeShip(field, firstCellX, firstCellY, orientation, sizeOfShip, rows, cols, shipsCount, differentShipsSymbol);
-
-        }
-
-        if (boatType == 'D') {
-            placeShip(field, firstCellX, firstCellY, orientation, sizeOfShip, rows, cols, shipsCount, differentShipsSymbol);
-        }
-
-        if (boatType == 'A') {
-            placeShip(field, firstCellX, firstCellY, orientation, sizeOfShip, rows, cols, shipsCount, differentShipsSymbol);
-        }
-
+        placeShip(field, firstCellX, firstCellY, orientation, sizeOfShip, rows, cols, shipsCount, currentShipSymbol);
     }
-
 }
 
-void shoot(char**field, int X, int Y, int& sunkShipsCounter, int rows, int cols, bool& hit) {
+void shoot(char**field, int shootCellX, int shootCellY, int& sunkShipsCount, int fieldRows, int fieldCols, bool& hitResult) {
     int counter = 0;
-    if (field[X][Y] >= 'A' && field[X][Y] <= 'Z' || field[X][Y] == '#') {
+    if (isCapitalLetter(field[shootCellX][shootCellY]) || field[shootCellX][shootCellY] == SYMBOL_HIT) {
         cout << "Hit!" << endl;
 
-        if (X > 0 && Y > 0 && X < rows - 1 && Y < cols - 1) {
+        if (shootCellX > 0 && shootCellY > 0 && shootCellX < fieldRows - 1 && shootCellY < fieldCols - 1) {
 
 
-            if ((field[X][Y] != field[X - 1][Y]) && (field[X][Y] != field[X][Y - 1]) && (field[X][Y] != field[X + 1][Y]) && (field[X][Y] != field[X][Y + 1])) {
+            if ((field[shootCellX][shootCellY] != field[shootCellX - 1][shootCellY]) && (field[shootCellX][shootCellY] != field[shootCellX][shootCellY - 1]) && (field[shootCellX][shootCellY] != field[shootCellX + 1][shootCellY]) && (field[shootCellX][shootCellY] != field[shootCellX][shootCellY + 1])) {
                 cout << "You sunk a ship!" << endl;
-                sunkShipsCounter++;
+                sunkShipsCount++;
             }
         }
         else {
-            if (X == 0 && Y == 0) {
-                if ((field[X][Y] != field[X + 1][Y]) && (field[X][Y] != field[X][Y + 1])) {
+            if (shootCellX == 0 && shootCellY == 0) {
+                if ((field[shootCellX][shootCellY] != field[shootCellX + 1][shootCellY]) && (field[shootCellX][shootCellY] != field[shootCellX][shootCellY + 1])) {
                     cout << "You sunk a ship!" << endl;
-                    sunkShipsCounter++;
+                    sunkShipsCount++;
                 }
             }
 
-            else if (X == 0) {
-                if ((field[X][Y] != field[X][Y - 1]) && (field[X][Y] != field[X + 1][Y]) && (field[X][Y] != field[X][Y + 1])) {
+            else if (shootCellX == 0) {
+                if ((field[shootCellX][shootCellY] != field[shootCellX][shootCellY - 1]) && (field[shootCellX][shootCellY] != field[shootCellX + 1][shootCellY]) && (field[shootCellX][shootCellY] != field[shootCellX][shootCellY + 1])) {
                     cout << "You sunk a ship!" << endl;
-                    sunkShipsCounter++;
+                    sunkShipsCount++;
                 }
             }
 
-            else if (Y == 0) {
-                if ((field[X][Y] != field[X - 1][Y]) && (field[X][Y] != field[X + 1][Y]) && (field[X][Y] != field[X][Y + 1])) {
+            else if (shootCellY == 0) {
+                if ((field[shootCellX][shootCellY] != field[shootCellX - 1][shootCellY]) && (field[shootCellX][shootCellY] != field[shootCellX + 1][shootCellY]) && (field[shootCellX][shootCellY] != field[shootCellX][shootCellY + 1])) {
                     cout << "You sunk a ship!" << endl;
-                    sunkShipsCounter++;
+                    sunkShipsCount++;
                 }
             }
 
-            else if (X == rows - 1 && Y == cols - 1) {
-                if ((field[X][Y] != field[X - 1][Y]) && (field[X][Y] != field[X][Y - 1])) {
+            else if (shootCellX == fieldRows - 1 && shootCellY == fieldCols - 1) {
+                if ((field[shootCellX][shootCellY] != field[shootCellX - 1][shootCellY]) && (field[shootCellX][shootCellY] != field[shootCellX][shootCellY - 1])) {
                     cout << "You sunk a ship!" << endl;
-                    sunkShipsCounter++;
+                    sunkShipsCount++;
                 }
             }
 
-            else if (X == rows - 1) {
-                if ((field[X][Y] != field[X - 1][Y]) && (field[X][Y] != field[X][Y - 1]) && (field[X][Y] != field[X][Y + 1])) {
+            else if (shootCellX == fieldRows - 1) {
+                if ((field[shootCellX][shootCellY] != field[shootCellX - 1][shootCellY]) && (field[shootCellX][shootCellY] != field[shootCellX][shootCellY - 1]) && (field[shootCellX][shootCellY] != field[shootCellX][shootCellY + 1])) {
                     cout << "You sunk a ship!" << endl;
-                    sunkShipsCounter++;
+                    sunkShipsCount++;
                 }
             }
 
-            else if (Y == cols - 1) {
-                if ((field[X][Y] != field[X - 1][Y]) && (field[X][Y] != field[X][Y - 1]) && (field[X][Y] != field[X + 1][Y])) {
+            else if (shootCellY == fieldCols - 1) {
+                if ((field[shootCellX][shootCellY] != field[shootCellX - 1][shootCellY]) && (field[shootCellX][shootCellY] != field[shootCellX][shootCellY - 1]) && (field[shootCellX][shootCellY] != field[shootCellX + 1][shootCellY])) {
                     cout << "You sunk a ship!" << endl;
-                    sunkShipsCounter++;
+                    sunkShipsCount++;
                 }
             }
 
         }
-        field[X][Y] = '#';
-        hit = 1;
+        field[shootCellX][shootCellY] = '#';
+        hitResult = 1;
     }
     else {
         cout << "Miss!" << endl;
-        hit = 0;
+        hitResult = 0;
     }
 }
 
-void changeSeeFieldHit(char** field, int x, int y) {
-    field[x][y] = '#';
+void changeFieldCellHit(char** field, int x, int y) {
+    field[x][y] = SYMBOL_HIT;
 }
 
-void changeSeeFieldMiss(char** field, int x, int y) {
-    field[x][y] = '0';
+void changeFieldCellMiss(char** field, int x, int y) {
+    field[x][y] = SYMBOL_MISS;
 }
 
-void result(int shootCoordinateX, int shootCoordinateY,char** fieldPlayerOne, char** fieldPlayerTwo, int rows, int cols, int shipsCount) {
-    
-    int sunkShipsCounterPlayerOne = 0;
-    int sunkShipsCounterPlayerTwo = 0;
+void startShootingPhase(int shootCoordinateX, int shootCoordinateY,char** fieldPlayerOne, char** fieldPlayerTwo, int rows, int cols, int shipsCount) {
+    int sunkShipsCountPlayerOne = 0;
+    int sunkShipsCountPlayerTwo = 0;
 
-    char** whatPlayerOneSees = new char* [rows];
-    makeDynamicField(whatPlayerOneSees, rows, cols);
+    char** playerOneUIField = new char* [rows];
+    initDynamicField(playerOneUIField, rows, cols);
 
 
-    char** whatPlayerTwoSees = new char* [rows];
-    makeDynamicField(whatPlayerTwoSees, rows, cols);
+    char** playerTwoUIField = new char* [rows];
+    initDynamicField(playerTwoUIField, rows, cols);
 
-    fillDynamicFieldWithDots(whatPlayerOneSees, rows, cols);
-    fillDynamicFieldWithDots(whatPlayerTwoSees, rows, cols);
+    fillDefaultField(playerOneUIField, rows, cols);
+    fillDefaultField(playerTwoUIField, rows, cols);
 
     bool hit = 0;
 
     while (true) {
         cout << "Player(1) shoots at (X/Y): ";
         cin >> shootCoordinateX >> shootCoordinateY;
-        shoot(fieldPlayerTwo, shootCoordinateX, shootCoordinateY, sunkShipsCounterPlayerTwo, rows, cols, hit);
+
+        shoot(fieldPlayerTwo, shootCoordinateX, shootCoordinateY, sunkShipsCountPlayerTwo, rows, cols, hit);
+
         if (hit) {
-            changeSeeFieldHit(whatPlayerOneSees, shootCoordinateX, shootCoordinateY);
+            changeFieldCellHit(playerOneUIField, shootCoordinateX, shootCoordinateY);
         }
         else {
-            changeSeeFieldMiss(whatPlayerOneSees, shootCoordinateX, shootCoordinateY);
+            changeFieldCellMiss(playerOneUIField, shootCoordinateX, shootCoordinateY);
         }
-        printField(whatPlayerOneSees, rows, cols);
 
-        if (sunkShipsCounterPlayerTwo == shipsCount) {
+        cout << endl;
+        printField(playerOneUIField, rows, cols);
+
+        if (sunkShipsCountPlayerTwo == shipsCount) {
             cout <<" - Player(1) wins!!! - "<< endl;
             break;
         }
 
-
         cout << "Player(2) shoots at (X/Y): ";
         cin >> shootCoordinateX >> shootCoordinateY;
-        shoot(fieldPlayerOne, shootCoordinateX, shootCoordinateY, sunkShipsCounterPlayerOne, rows, cols, hit);
+
+        shoot(fieldPlayerOne, shootCoordinateX, shootCoordinateY, sunkShipsCountPlayerOne, rows, cols, hit);
+
         if (hit) {
-            changeSeeFieldHit(whatPlayerTwoSees, shootCoordinateX, shootCoordinateY);
+            changeFieldCellHit(playerTwoUIField, shootCoordinateX, shootCoordinateY);
         }
         else {
-            changeSeeFieldMiss(whatPlayerTwoSees, shootCoordinateX, shootCoordinateY);
+            changeFieldCellMiss(playerTwoUIField, shootCoordinateX, shootCoordinateY);
         }
-        printField(whatPlayerTwoSees, rows, cols);
 
-        if (sunkShipsCounterPlayerOne == shipsCount) {
+        cout << endl;
+        printField(playerTwoUIField, rows, cols);
+
+        if (sunkShipsCountPlayerOne == shipsCount) {
             cout << " - Player(2) wins!!! - " << endl;
             break;
         }
-
     }
-
 }
 
 void playGame() {
@@ -331,7 +340,7 @@ void playGame() {
     cout << "Board size (rows / columns): ";
     cin >> rows;
     cin >> cols;
-    if (boardSizeIsValid(rows, cols)) {
+    if (isBoardSizeValid(rows, cols)) {
         cout << "Invalid board size" << endl;
         return;
     }
@@ -339,41 +348,39 @@ void playGame() {
     int shipsCount;
     cout << "Ships count: ";
     cin >> shipsCount;
-    if (shipsCountIsValid(shipsCount)) {
+    if (isShipsCountValid(shipsCount)) {
         cout << "Invalid ships count" << endl;
         return;
     }
 
     char** fieldPlayerOne = new char* [rows];
-    makeDynamicField(fieldPlayerOne, rows, cols);
+    initDynamicField(fieldPlayerOne, rows, cols);
 
     char** fieldPlayerTwo = new char* [rows];
-    makeDynamicField(fieldPlayerTwo, rows, cols);
+    initDynamicField(fieldPlayerTwo, rows, cols);
 
-    fillDynamicFieldWithDots(fieldPlayerOne, rows, cols);
-    fillDynamicFieldWithDots(fieldPlayerTwo, rows, cols);
+    fillDefaultField(fieldPlayerOne, rows, cols);
+    fillDefaultField(fieldPlayerTwo, rows, cols);
 
-    cout << "Player(1) places ships: " << endl;
+    cout << "Player(1) turn to place ships: " << endl;
     placeShipsInField(fieldPlayerOne, rows, cols, shipsCount);
    
-
-    cout << "Player(2) places ships: " << endl;
+    cout << "Player(2) turn to place ships: " << endl;
     placeShipsInField(fieldPlayerTwo, rows, cols, shipsCount);
 
-
-    cout <<endl<< "Player(1)'s field: ";
+    cout << endl << "Player(1)'s field: " << endl;
     printField(fieldPlayerOne, rows, cols);
 
     cout << "Player(2)'s field: " << endl;
     printField(fieldPlayerTwo, rows, cols);
-    int shootCoordinateX = 0, shootCoordinateY = 0;
 
-    result(shootCoordinateX,shootCoordinateY, fieldPlayerOne,fieldPlayerTwo, rows, cols, shipsCount);
+    int shootCoordinateX = 0, shootCoordinateY = 0;
+    startShootingPhase(shootCoordinateX,shootCoordinateY, fieldPlayerOne,fieldPlayerTwo, rows, cols, shipsCount);
 }
 
-int main()
-{
+int main() {
     playGame();
-    
+    // TODO: Print field after calling this function - placeShip()
+    // TODO: Change shoot()
     return 0;
 }
