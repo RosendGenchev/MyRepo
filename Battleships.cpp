@@ -9,7 +9,7 @@
 * @idnumber 8MI0600372
 * @compiler VC
 *
-* <main file>
+* < Main file >
 *
 */
 
