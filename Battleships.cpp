@@ -101,6 +101,13 @@ void printField(char** field, int rows, int cols) {
     }
 }
 
+void deleteDynamicField(char** field, int n) {
+    for (int i = 0; i < n; i++) {
+        delete[] field[i];
+    }
+    delete[] field;
+}
+
 bool canShipBePlaced(char** field, int firstCellX, int firstCellY, char orientation, int sizeOfShip, int fieldRows, int fieldCols) {
 
     if (firstCellX < 0 || firstCellX >= fieldRows) {
@@ -363,6 +370,8 @@ void startShootingPhase(int shootCoordinateX, int shootCoordinateY, char** field
             break;
         }
     }
+    deleteDynamicField(playerOneUIField, cols);
+    deleteDynamicField(playerTwoUIField, cols);
 }
 
 void playGame() {
@@ -406,6 +415,9 @@ void playGame() {
 
     int shootCoordinateX = 0, shootCoordinateY = 0;
     startShootingPhase(shootCoordinateX, shootCoordinateY, fieldPlayerOne, fieldPlayerTwo, rows, cols, shipsCount);
+
+    deleteDynamicField(fieldPlayerOne, cols);
+    deleteDynamicField(fieldPlayerTwo, cols);
 }
 
 int main() {
